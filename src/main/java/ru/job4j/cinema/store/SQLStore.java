@@ -2,7 +2,8 @@ package ru.job4j.cinema.store;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.job4j.cinema.model.Place;
+import ru.job4j.cinema.exceptions.ConstraintViolationException;
+import ru.job4j.cinema.model.Order;
 import ru.job4j.cinema.model.Viewer;
 
 import javax.sql.DataSource;
@@ -24,62 +25,46 @@ public class SQLStore implements Store {
     private static final Logger LOGGER = LogManager.getLogger();
 
 
-    public Collection<Place> getAllPlaces() {
-        List<Place> places = new ArrayList<>();
+    @Override
+    public int createOrder(Order order) throws ConstraintViolationException {
+        var rslID = 0;
         try (Connection cn = pool.getConnection();
-             PreparedStatement ps =  cn.prepareStatement("SELECT * FROM place")
+             PreparedStatement ps =  cn.prepareStatement(
+                     "INSERT INTO orders(row, number, viewer_id) VALUES(?, ?, ? )",
+                     PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
+            ps.setInt(1, order.getRow());
+            ps.setInt(2, order.getNumber());
+            ps.setInt(3, order.getViewerID());
+            ps.execute();
+            try (ResultSet id = ps.getGeneratedKeys()) {
+                    if (id.next()) {
+                        rslID = id.getInt(1);
+                    }
+            }
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new ConstraintViolationException();
+        }
+        return rslID;
+    }
+
+    public Collection<Order> getAllOrders() {
+        List<Order> orders = new ArrayList<>();
+        try (Connection cn = pool.getConnection();
+             PreparedStatement ps =  cn.prepareStatement("SELECT * FROM orders")
         ) {
             try (ResultSet it = ps.executeQuery()) {
                 while (it.next()) {
-                    places.add(new Place(it.getInt("id"), it.getInt("row"),
-                            it.getInt("number"), it.getBoolean("available"),
+                    orders.add(new Order(it.getInt("id"), it.getInt("row"),
+                            it.getInt("number"),
                             it.getInt("viewer_id")));
                 }
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
-        return places;
-    }
-
-    public Place getPlaceByCoordinates(int row, int number) {
-        Place rslPlace = null;
-        try (Connection cn = pool.getConnection();
-             PreparedStatement ps =  cn.prepareStatement(
-                     "SELECT * FROM place WHERE row = ? AND number = ?")
-        ) {
-            ps.setInt(1, row);
-            ps.setInt(2, number);
-            ps.execute();
-            var rslSet = ps.getResultSet();
-            if (rslSet.next()) {
-                rslPlace = new Place(rslSet.getInt("id"), rslSet.getInt("row"),
-                        rslSet.getInt("number"), rslSet.getBoolean("available"),
-                        rslSet.getInt("viewer_id"));
-            }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-        }
-        return rslPlace;
-    }
-
-    public void updatePlace(Place place) {
-        try (Connection cn = pool.getConnection();
-             PreparedStatement ps =  cn.prepareStatement(
-                     "UPDATE place SET row = ?," +
-                             " number = ?," +
-                             "available = ?," +
-                             "viewer_id = ? WHERE id = ?")
-        ) {
-            ps.setInt(1, place.getRow());
-            ps.setInt(2, place.getNumber());
-            ps.setBoolean(3, place.isAvailable());
-            ps.setInt(4, place.getViewerID());
-            ps.setInt(5, place.getId());
-            ps.execute();
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+        return orders;
     }
 
     public int createViewer(Viewer viewer) {

@@ -4,13 +4,13 @@ public interface TicketService {
     /**
      * reserves place
      * @param data data needed for reserving
-     * @return accepted / declined
+     * @return message
      */
-    boolean reservePlace(String data);
+    String reservePlace(String data);
 
     /**
-     * gets places in String format
-     * @return places data
+     * gets orders in String format
+     * @return orders data
      */
-    String getPLaces();
+    String getOrders();
 }

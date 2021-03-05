@@ -19,7 +19,7 @@ public class HallServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        var outputMessage = service.getPLaces();
+        var outputMessage = service.getOrders();
         PrintWriter writer = new PrintWriter(resp.getOutputStream(),
                 true, StandardCharsets.UTF_8);
         writer.print(outputMessage);
@@ -29,9 +29,13 @@ public class HallServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        resp.setCharacterEncoding("UTF-8");
         var inputData = req.getReader().lines()
                 .collect(Collectors.joining(System.lineSeparator()));
-        var isSucceed = service.reservePlace(inputData);
-        resp.addHeader("success", String.valueOf(isSucceed));
+        var message = service.reservePlace(inputData);
+        PrintWriter writer = new PrintWriter(resp.getOutputStream(),
+                true, StandardCharsets.UTF_8);
+        writer.print(message);
+        writer.flush();
     }
 }

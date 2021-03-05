@@ -1,30 +1,23 @@
 package ru.job4j.cinema.store;
 
-import ru.job4j.cinema.model.Place;
+import ru.job4j.cinema.exceptions.ConstraintViolationException;
+import ru.job4j.cinema.model.Order;
 import ru.job4j.cinema.model.Viewer;
 
 import java.util.Collection;
 
 public interface Store {
     /**
-     * get all places from the store
-     * @return list of places
+     * creates new order in storage
+     * @param order viewer
+     * @return created order ID
      */
-    Collection<Place> getAllPlaces();
-
+    int createOrder(Order order) throws ConstraintViolationException;
     /**
-     * gets place from storage with certain coordinates
-     * @param row place row
-     * @param number place number
-     * @return Place object fro, storage
+     * get all orders from the store
+     * @return list of orders
      */
-    Place getPlaceByCoordinates(int row, int number);
-
-    /**
-     * updates place model in storage
-     * @param place updating place
-     */
-    void updatePlace(Place place);
+    Collection<Order> getAllOrders();
 
     /**
      * creates new viewer in storage

@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS place;
+DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS viewer;
 
 CREATE TABLE viewer (
@@ -7,20 +7,10 @@ CREATE TABLE viewer (
     phone_number TEXT,
     UNIQUE (name, phone_number)
 );
-CREATE TABLE place (
+CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     row int,
     number int,
-    available BOOLEAN,
-    viewer_id int references viewer(id)
+    viewer_id int references viewer(id),
+    UNIQUE (row, number)
 );
-DO
-$do$
-BEGIN
-   FOR c_row IN 1..3 LOOP
-   	  FOR c_number IN 1..3 LOOP
-	  	INSERT INTO place (row, number, available) values (c_row, c_number, TRUE);
-	  END LOOP;
-   END LOOP;
-END
-$do$;

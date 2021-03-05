@@ -10,18 +10,17 @@ function sendData() {
     }
     let message = createJsonMessage();
     console.log(message)
-    fetch('places', {
+    fetch('orders', {
         method : 'POST',
         body : message
     }).then(response => {
-        let succeed = response.headers.get('success') === 'true'
-        if (succeed) {
-            document.getElementById('success').setAttribute('class', 'd-block')
-            document.getElementById('failure').setAttribute('class', 'd-none')
-        } else {
-            document.getElementById('success').setAttribute('class', 'd-none')
-            document.getElementById('failure').setAttribute('class', 'd-block')
-        }
+        return response.json();
+    })
+      .then(data => {
+        let message = data.message;
+            let div = document.getElementById('status-message');
+            div.setAttribute('class', 'd-block');
+            div.innerText = message;
     })
 }
 

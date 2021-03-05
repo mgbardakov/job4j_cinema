@@ -2,18 +2,16 @@ package ru.job4j.cinema.model;
 
 import java.util.Objects;
 
-public class Place {
+public class Order {
     private int id;
     private int row;
     private int number;
-    private boolean available;
     private int viewerID;
 
-    public Place(int id, int row, int number, boolean available, int viewerID) {
+    public Order(int id, int row, int number, int viewerID) {
         this.id = id;
         this.row = row;
         this.number = number;
-        this.available = available;
         this.viewerID = viewerID;
     }
 
@@ -31,14 +29,6 @@ public class Place {
 
     public void setNumber(int number) {
         this.number = number;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
     }
 
     public int getViewerID() {
@@ -61,9 +51,9 @@ public class Place {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Place place = (Place) o;
-        return row == place.row &&
-                number == place.number;
+        Order order = (Order) o;
+        return row == order.row &&
+                number == order.number;
     }
 
     @Override

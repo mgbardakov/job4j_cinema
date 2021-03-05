@@ -1,21 +1,21 @@
-function refreshCell(place) {
-    let table = document.getElementById('hall-table');
-    table.rows[place.row]
-        .cells[place.number]
-        .children[0].disabled = !place.available;
-}
+// function refreshCell(place) {
+//     let table = document.getElementById('hall-table');
+//     table.rows[place.row]
+//         .cells[place.number]
+//         .children[0].disabled = !place.available;
+// }
 
 async function refreshWithTimeOut(time) {
     while(true) {
-      await fetch('places')
+      await fetch('orders')
           .then(response => {
               return response.json()
           })
-          .then(jsonData => {
-              jsonData.forEach(x => {
-                  refreshCell(x)
+          .then(orders => {
+              let table = document.getElementById('hall-table');
+              clearTable(table);
+              disableReservedSits(table, orders)
               })
-          })
           .then(() => {
             setTimeout(time);
         });
@@ -45,6 +45,23 @@ function getSelectedCell() {
         }
     })
     return rsl;
+}
+
+function clearTable(table) {
+    //let table = document.getElementById('hall-table');
+    for (let i = 1; i < table.rows; i++) {
+        let row = table.rows[i];
+        for (let j = 1; j < row.cells; j++) {
+            let cell = row.cells[j];
+            cell.children[0].disabled = false;
+        }
+    }
+}
+
+function disableReservedSits(table, orders) {
+   for (let order of orders) {
+       table.rows[order.row].cells[order.number].children[0].disabled = true;
+   }
 }
 
 refreshWithTimeOut(5000);
